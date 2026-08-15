@@ -2,8 +2,10 @@ from app.agents.state import AgentState
 from app.config import Settings
 from langchain_groq import ChatGroq
 import logfire
+from app.gateways.client import get_langchain_llm
 
-llm = ChatGroq(api_key=Settings.GROQ_API_KEY,model = Settings.GROQ_MODEL)
+#llm = ChatGroq(api_key=Settings.GROQ_API_KEY,model = Settings.GROQ_MODEL)
+llm = get_langchain_llm(feature="Planner")
 
 def planner_node(state: AgentState):
     """

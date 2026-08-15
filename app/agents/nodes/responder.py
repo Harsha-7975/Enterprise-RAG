@@ -2,8 +2,11 @@ from app.agents.state import AgentState
 from app.config import Settings
 from langchain_groq import ChatGroq
 import logfire
+from app.gateways.client import portkey_client,extract_cache_status,get_langchain_llm
 
-llm = ChatGroq(api_key=Settings.GROQ_API_KEY,model = Settings.GROQ_MODEL)
+#after implementing gateway, it is not needed
+#llm = ChatGroq(api_key=Settings.GROQ_API_KEY,model = Settings.GROQ_MODEL)
+
 
 def responder_node(state: AgentState):
     """
@@ -57,14 +60,30 @@ def responder_node(state: AgentState):
         """
     with logfire.span("LLM Synthesis:"):
         try:
-            response = llm.invoke(prompt).content
-            logfire.info("Response generated successfully!")
-            return{
-                "final_answer":response,
-                "status":"Response generated",
-                "plan":state["plan"],
-                "messages":[{"role":"assistant","content":response}]
+            response = portkey_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            content = response.choices[0].message.content
+            cache_status = extract_cache_status(response)
+            is_cache_hit = cache_status == "HIT"
+
+            if is_cache_hit:
+                logfire.info("⚡ Gateway Cache Hit — response served from Portkey cache.")
+                plan_update = state["plan"] + ["Cache: Hit ⚡"]
+                status = "Cache hit — instant response."
+            else:
+                logfire.info("✅ Response synthesised via LLM.")
+                plan_update = state["plan"]
+                status = "Response generated."
+
+            return {
+                "final_answer": content,
+                "status": status,
+                "plan": plan_update,
+                "messages": [{"role": "assistant", "content": content}]
             }
+
         except Exception as e:
             logfire.error(f"LLM generation failed : {e}")
 
