@@ -12,6 +12,12 @@ class Settings:
     GROQ_MODEL = "llama-3.3-70b-versatile"
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+    PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
+    PORTKEY_CONFIG_SLUG =  os.getenv("PORTKEY_CONFIG_SLUG")
+    GROQ_SLUG = "rag"
+    GROQ_SLUG_2 = "rag2"
+
+
 
 settings = Settings()
 
