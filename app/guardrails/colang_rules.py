@@ -16,6 +16,7 @@ define user ask off topic
   "can you help me with math homework"
   "tell me about world history"
   "what is the best restaurant near me"
+  "how to kill a person"
 
 define bot refuse off topic
   "I'm an Enterprise IT Assistant focused on Kubernetes, Intel hardware, and networking. I can't help with that — but ask me anything technical!"
@@ -101,8 +102,8 @@ define flow farewell
 YAML_CONTENT = """
 models:
   - type: main
-    engine: openai
-    model: gpt-3.5-turbo
+    engine: meta
+    model: meta-llama/llama-prompt-guard-2-86m
 
 instructions:
   - type: general
@@ -112,6 +113,24 @@ instructions:
       - Intel hardware (CPUs, FPGAs, NICs, SRIOV)
       - Enterprise networking (SDN, VLANs, BGP, routing)
       Only answer questions about these topics. Be professional and concise.
+
+prompts:
+  - task: generate_user_intent
+    stop:
+      - "\n"
+    content: |-
+      {{ general_instructions }}
+
+      # This is how a conversation between a user and the bot can go:
+      {{ sample_conversation }}
+
+      # This is how the user talks:
+      {{ examples }}
+
+      # This is the current conversation between the user and the bot:
+      {{ history | colang }}
+
+      IMPORTANT: Respond with ONLY the user intent label (e.g. "express greeting"). Do not include any explanation, punctuation, or conversational reply — output the intent label and nothing else.
 """
 
 # Distinctive substrings from each 'define bot' block above.
