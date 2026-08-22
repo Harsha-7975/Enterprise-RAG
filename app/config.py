@@ -9,7 +9,7 @@ class Settings:
     QDRANT_URL = os.getenv("QDRANT_CLUSTER_ENDPOINT")
     QDRANT_COLLECTION = "Enterprise_RAG"
 
-    GROQ_MODEL = "llama-3.3-70b-versatile"
+    GROQ_MODEL = "openai/gpt-oss-120b"
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
     PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
